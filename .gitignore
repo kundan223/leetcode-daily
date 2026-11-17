@@ -2,3 +2,6 @@ __pycache__/
 _site/
 .publish/
 node_modules/
+
+supabase/.temp/
+supabase/.branches/

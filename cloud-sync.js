@@ -34,7 +34,7 @@
     function authState(event,current){
       const previous=session?.user.id;session=current;engine.identity(current?.user.id||null);
       $('cloud-auth').hidden=!!current&&!recovery;$('cloud-account').hidden=!current;$('cloud-email-label').textContent=current?.user.email||'';
-      if(event==='PASSWORD_RECOVERY'){recovery=true;$('cloud-auth').hidden=false;$('cloud-update-password').hidden=false;}
+      if(event==='PASSWORD_RECOVERY'){$('cloud-email').value=current?.user.email||'';$('cloud-password').autocomplete='new-password';recovery=true;$('cloud-auth').hidden=false;$('cloud-update-password').hidden=false;}
       if(!current){clearTimeout(timer);message('offline','Sign in to sync your practice across devices. Existing progress stays on this browser.');}
       else if(previous!==current.user.id){setTimeout(()=>run(),0);}
     }

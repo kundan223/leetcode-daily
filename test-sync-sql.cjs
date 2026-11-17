@@ -1,9 +1,9 @@
-﻿const {PGlite}=require('@electric-sql/pglite'),fs=require('node:fs'),assert=require('node:assert/strict');
+const {PGlite}=require('@electric-sql/pglite'),fs=require('node:fs'),assert=require('node:assert/strict');
 (async()=>{
  const db=new PGlite();
  try{
  await db.exec(`create role anon; create role authenticated; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$; grant usage on schema auth to anon,authenticated; grant execute on function auth.uid() to anon,authenticated;`);
- await db.exec(fs.readFileSync(__dirname+'/supabase/migrations/202611170001_cloud_sync.sql','utf8').replace(/^\uFEFF/,''));
+ for(const file of fs.readdirSync(__dirname+'/supabase/migrations').filter(f=>f.endsWith('.sql')).sort())await db.exec(fs.readFileSync(__dirname+'/supabase/migrations/'+file,'utf8').replace(/^\uFEFF/,''));
  const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222';
  await db.query('insert into auth.users(id) values($1),($2)',[a,b]);
  const payload={app:'daily-practice',version:3,sheets:{dsa:{done:true}},activity:{events:[]},courses:{checks:{}}};

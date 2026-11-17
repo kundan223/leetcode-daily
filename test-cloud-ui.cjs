@@ -1,4 +1,4 @@
-﻿const {JSDOM}=require('jsdom'),fs=require('node:fs'),assert=require('node:assert/strict');
+const {JSDOM}=require('jsdom'),fs=require('node:fs'),assert=require('node:assert/strict');
 const copy=x=>JSON.parse(JSON.stringify(x)),tick=async()=>{for(let i=0;i<4;i++)await new Promise(r=>setImmediate(r));};
 function boot(configured=true){
  const dom=new JSDOM(fs.readFileSync(__dirname+'/index.html','utf8'),{url:'https://kundan223.github.io/leetcode-daily/',runScripts:'outside-only'}),w=dom.window;
@@ -13,7 +13,7 @@ function boot(configured=true){
   from:table=>{assert.equal(table,'practice_state');return{select:()=>({eq:(_,id)=>{assert.equal(id,'owner');return{maybeSingle:async()=>({data:copy(service.row)})};}})};},
   rpc:async(name,args)=>{assert.equal(name,'save_practice_state');assert.equal(args.p_user,'owner');service.puts++;service.row={revision:(service.row?.revision||0)+1,payload:copy(args.p_payload)};return{data:{...copy(service.row),conflict:false}};}};
  }};
- for(const script of w.document.querySelectorAll('script[src]')){const name=script.getAttribute('src').split('?')[0];w.eval(fs.readFileSync(__dirname+'/'+name,'utf8'));if(name==='supabase-config.js'&&configured)w.SUPABASE_CONFIG={url:'https://exampleproject.supabase.co',publishableKey:'sb_publishable_test'};}
+ for(const script of w.document.querySelectorAll('script[src]')){const name=script.getAttribute('src').split('?')[0];w.eval(fs.readFileSync(__dirname+'/'+name,'utf8'));if(name==='supabase-config.js')w.SUPABASE_CONFIG=configured?{url:'https://exampleproject.supabase.co',publishableKey:'sb_publishable_test'}:{url:'',publishableKey:''};}
  return {dom,w,service,legacy};
 }
 (async()=>{

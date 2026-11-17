@@ -1,3 +1,2 @@
-﻿// Only a project URL and PUBLIC publishable key belong here. Never a secret/service-role key.
-// Cloud controls remain disabled until the owner's free Supabase project is connected.
-window.SUPABASE_CONFIG = Object.freeze({url:'',publishableKey:''});
+// Public browser configuration. Access is protected by Supabase Auth and database policies.
+window.SUPABASE_CONFIG = Object.freeze({"url": "https://nscklbuicytcdgzbqscr.supabase.co", "publishableKey": "sb_publishable_48nAILQDngSh0M9Z6DaQJg_7Eqw8NYL"});
