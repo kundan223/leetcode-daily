@@ -26,22 +26,16 @@
     state.checks[`${course}:${id}`]={done,date:done?date:null};
     state.events.push({key:root.crypto.randomUUID(),sheet:course,id,action:done?'completed':'reopened',date,at:now.toISOString()});
   }
-  function watch(state,{key,course,id,date,at,seconds,manual=false}){
-    if(!known(course,id)||!root.Workspace.validDate(date)||!Number.isInteger(seconds)||seconds<1||seconds>86400)throw new Error('Invalid watch time.');
-    const existing=state.events.find(e=>e.key===key);
-    if(existing){
-      if(existing.sheet!==course||existing.id!==id||existing.date!==date||existing.action!=='watched'||manual||existing.seconds+seconds>86400)throw new Error('Invalid watch session.');
-      existing.seconds+=seconds;
-    }else state.events.push({key,sheet:course,id,action:manual?'manual-watch':'watched',date,at,seconds});
+  function duration(lesson){return Math.ceil(lesson.durationSeconds/60)*60;}
+  function entries(state){
+    return root.COURSES.flatMap(course=>course.lessons.filter(l=>state.checks[`${course.id}:${l.id}`]?.done).map(l=>{
+      const date=state.checks[`${course.id}:${l.id}`].date;
+      const event=state.events.filter(e=>e.sheet===course.id&&e.id===l.id&&e.action==='completed'&&e.date===date).at(-1);
+      return {key:`checked:${course.id}:${l.id}`,sheet:course.id,id:l.id,action:'completed',date,at:event?.at||null,seconds:duration(l)};
+    }));
   }
-  function seconds(state,course,id){return state.events.filter(e=>e.sheet===course&&(!id||e.id===id)&&['watched','manual-watch'].includes(e.action)).reduce((sum,e)=>sum+e.seconds,0);}
+  function seconds(state,course,id){return entries(state).filter(e=>e.sheet===course&&(!id||e.id===id)).reduce((sum,e)=>sum+e.seconds,0);}
   function format(seconds){seconds=Math.floor(seconds);const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;return `${h?`${h}h `:''}${m?`${m}m `:''}${s||(!h&&!m)?`${s}s`:''}`.trim();}
-  // Measure elapsed viewing time, not video position or unique content coverage.
-  function credit(previous,current){
-    if(!previous||!current||!previous.active||!current.active||previous.id!==current.id||previous.rate!==current.rate||previous.state!==1||current.state!==1)return 0;
-    const elapsed=(current.clock-previous.clock)/1000,media=current.position-previous.position;
-    if(!Number.isFinite(elapsed)||!Number.isFinite(media)||!Number.isFinite(current.rate)||current.rate<=0||elapsed<=0||elapsed>5||media<=0||Math.abs(media-elapsed*current.rate)>Math.max(.75,elapsed*current.rate*.35))return 0;
-    return Math.min(elapsed,media/current.rate);
-  }
-  root.CourseProgress={KEY,fresh,validate,toggle,watch,seconds,format,credit,known};
+  // Old watch events remain readable in backups but do not contribute to totals.
+  root.CourseProgress={KEY,fresh,validate,toggle,duration,entries,seconds,format,known};
 })(typeof window!=='undefined'?window:globalThis);

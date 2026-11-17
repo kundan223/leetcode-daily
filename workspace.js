@@ -36,6 +36,22 @@
     }
     return new Map([...counts].map(([date,ids])=>[date,ids.size]));
   }
+  function currentEntries(journal,states){
+    const result=[];
+    for(const [sheet,state] of Object.entries(states))for(const [id,item] of Object.entries(state.problems)){
+      const history=journal.events.filter(e=>e.sheet===sheet&&e.id===Number(id));
+      if(item.done){
+        const date=validDate(item.completedOn)?item.completedOn:null;
+        const event=history.filter(e=>['completed','recovered'].includes(e.action)&&e.date===date).at(-1);
+        result.push({key:`current:${sheet}:${id}`,sheet,id:Number(id),action:'completed',date,at:event?.at||null});
+      }
+      if(item.review){
+        const event=history.filter(e=>e.action==='review').at(-1);
+        result.push({key:`review:${sheet}:${id}`,sheet,id:Number(id),action:'review',date:event?.date||null,at:event?.at||null});
+      }
+    }
+    return result;
+  }
   function calendar(year,now=new Date()){
     const first=new Date(year,0,1,12),end=new Date(year,11,31,12),start=new Date(first);
     start.setDate(first.getDate()-first.getDay());
@@ -51,5 +67,5 @@
     if(![2,3].includes(value?.version)||value.app!=='daily-practice'||!value.sheets)throw new Error('This is not a Daily Practice backup.');
     return {legacy:false,dsa:root.Progress.validate(value.sheets.dsa,catalog.dsa),sql:root.Progress.validate(value.sheets.sql,catalog.sql),activity:validateActivity(value.activity,catalog),...(value.version===3?{courses:root.CourseProgress.validate(value.courses)}:{})};
   }
-  root.Workspace={KEYS,validDate,validateActivity,recover,record,daily,calendar,validateBackup};
+  root.Workspace={KEYS,validDate,validateActivity,recover,record,daily,currentEntries,calendar,validateBackup};
 })(typeof window!=='undefined'?window:globalThis);

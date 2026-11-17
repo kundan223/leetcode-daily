@@ -32,7 +32,7 @@
     const practice=window.Insights.score(states.dsa,sheets.dsa.sections);
     $('#practice-score').textContent=practice.total;$('#practice-score-bar').value=practice.total;
     $('#score-breakdown').innerHTML=`<li>Completion: ${practice.completion.toFixed(1)} / 60 (${practice.done} / 242 DSA problems solved)</li><li>Topic coverage: ${practice.breadth.toFixed(1)} / 25 (${practice.covered} / 22 DSA topics)</li><li>Consistency: ${practice.consistency.toFixed(1)} / 15 (${practice.active} / 14 active days)</li>`;
-    window.ActivityView.render(journal);
+    window.ActivityView.render(journal,states);
     $('#topic-count').textContent=`${data.sections.length} TOPICS`;
     $('#roadmap-name').textContent=sheet==='sql'?'SQL 50':'DSA ROADMAP';
     $('#solved-total').textContent=`/ ${rows.length} solved`;$('#topics-total').textContent=`/ ${data.sections.length} topics`;
@@ -56,7 +56,7 @@
   function render(){renderStats();renderList();}
   $('#topics').addEventListener('click',e=>{const b=e.target.closest('[data-topic]');if(!b)return;topic=Number(b.dataset.topic);render();});
   $('#problems').addEventListener('change',e=>{if(!e.target.matches('.problem-check'))return;const id=Number(e.target.dataset.id),checked=e.target.checked;W.record(journal,sheet,id,checked?'completed':'reopened');P.toggleDone(state,id,checked);save();renderStats();if(status==='all'||status==='review'){e.target.closest('tr').classList.toggle('done-row',checked);}else{renderList();}if(checked&&P.stats(state,data.sections).today===state.goal)toast('Daily goal reached. Nicely done!');});
-  $('#problems').addEventListener('click',e=>{const b=e.target.closest('.review-button');if(!b)return;const id=Number(b.dataset.id);P.toggleReview(state,id);W.record(journal,sheet,id,state.problems[id].review?'review':'unreview');save();window.ActivityView.render(journal);if(status==='review'){renderList();}else{const active=state.problems[id].review;b.setAttribute('aria-pressed',active);b.textContent=active?'★':'☆';b.title=active?'Remove from revisit list':'Save for another attempt';}});
+  $('#problems').addEventListener('click',e=>{const b=e.target.closest('.review-button');if(!b)return;const id=Number(b.dataset.id);P.toggleReview(state,id);W.record(journal,sheet,id,state.problems[id].review?'review':'unreview');save();window.ActivityView.render(journal,states);if(status==='review'){renderList();}else{const active=state.problems[id].review;b.setAttribute('aria-pressed',active);b.textContent=active?'★':'☆';b.title=active?'Remove from revisit list':'Save for another attempt';}});
   $('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(b){status=b.dataset.status;renderList();}});
   $('#search').addEventListener('input',e=>{search=e.target.value.trim().toLowerCase();renderList();});
   $('#difficulty').addEventListener('change',e=>{difficulty=e.target.value;renderList();});
@@ -70,7 +70,7 @@
     try{
       if(file.size>10000000)throw new Error('Please choose a backup smaller than 10 MB.');
       const incoming=W.validateBackup(JSON.parse(await file.text()),catalog);
-      if(!confirm(incoming.legacy?'Restore this original backup to DSA only? SQL progress and the activity ledger will be kept. Export your current progress first if needed.':(incoming.courses?'Replace both sheets, course checklists, watch time and activity with this backup? Export your current progress first if needed.':'Restore both sheets and their activity? Course checklists and watch time will be kept.')))return;
+      if(!confirm(incoming.legacy?'Restore this original backup to DSA only? SQL progress and the activity ledger will be kept. Export your current progress first if needed.':(incoming.courses?'Replace both sheets, course checklists and activity with this backup? Export your current progress first if needed.':'Restore both sheets and their activity? Course checklists will be kept.')))return;
       states.dsa=incoming.dsa;writable.dsa=true;
       if(!incoming.legacy){states.sql=incoming.sql;journal=incoming.activity;writable.sql=true;writable.activity=true;}
       W.recover(journal,states);state=states[sheet];storageOK=true;
@@ -105,7 +105,7 @@
     }
     window.CourseView.setActive(view==='courses');
   }
-  document.addEventListener('coursechange',()=>window.ActivityView.render(journal));
+  document.addEventListener('coursechange',()=>window.ActivityView.render(journal,states));
   window.addEventListener('hashchange',renderView);
   $('#topics').addEventListener('click',e=>{if(e.target.closest('[data-topic]'))location.hash=sheet==='sql'?'sql':'sheet';});
   renderView();
