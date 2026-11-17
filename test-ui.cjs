@@ -4,6 +4,7 @@ function boot(saved={},hash=''){
   const dom=new JSDOM(fs.readFileSync(path.join(root,'index.html'),'utf8'),{url:'https://kundan223.github.io/leetcode-daily/'+hash,runScripts:'outside-only'});
   const w=dom.window;for(const [k,v] of Object.entries(saved))w.localStorage.setItem(k,v);
   w.setInterval=()=>0;w.confirm=()=>true;w.matchMedia=()=>({matches:true});w.scrollTo=()=>{};
+  w.HTMLElement.prototype.scrollIntoView=function(){};
   w.Blob=class{constructor(parts){this.content=parts.join('');}};
   w.URL.createObjectURL=b=>{w.exported=JSON.parse(b.content);return 'blob:test'};w.URL.revokeObjectURL=()=>{};
   w.HTMLAnchorElement.prototype.click=function(){};
@@ -33,7 +34,17 @@ async function restore(w,backup){const input=w.document.querySelector('#import')
   $('#search').value='tweets';$('#search').dispatchEvent(new w.Event('input'));assert.equal($('#problems').children.length,1);
   route(w,'#sheet');assert.equal($('#done').textContent,'1');assert.equal($('#goal').value,'5');assert.equal($('#problems').children.length,242);assert.equal($('.problem-check[data-id="27"]').checked,true);
   route(w,'#sql');assert.equal($('#search').value,'tweets');assert.equal($('#problems').children.length,1);assert.equal($('#goal').value,'2');
+  route(w,'#contests');assert.equal($('#contests-panel').hidden,false);assert.equal($('#sheet-panel').hidden,true);assert.equal($('#contests-tab').getAttribute('aria-current'),'page');
+  assert.ok($('#contests-panel').contains($('#leetcode-contests')));assert.ok($('#contests-panel').contains($('#codeforces-contests')));assert.equal($('#sheet-panel').querySelector('.contest-section'),null);
+  route(w,'#courses');assert.equal($('#courses-panel').hidden,false);assert.equal($('#contests-panel').hidden,true);assert.equal($('#courses-tab').getAttribute('aria-current'),'page');
+  const players=[...w.document.querySelectorAll('iframe[data-playlist-src]')];assert.equal(players.length,2);
+  assert.ok(players[0].src.includes('list=PLQEaRBV9gAFvzp6XhcNFpk1WdOcyVo9qT'));assert.ok(players[1].src.includes('0Rwb4Xmlcwc?list=PLui3EUkuMTPgZcV0QhQrOcwMPcBCcd_Q1'));
+  for(const player of players){assert.match(player.src,/^https:\/\/www.youtube-nocookie.com\/embed\//);assert.ok(player.title);}
+  assert.equal(w.localStorage.getItem(w.Progress.KEY),oldJSON);
+  route(w,'#sql');assert.equal($('#search').value,'tweets');assert.equal($('#goal').value,'2');assert.equal($('#problems').children.length,1);assert.ok(players.every(p=>!p.hasAttribute('src')));
   route(w,'#profile');assert.equal($('#sheet-panel').hidden,true);assert.equal($('#profile-panel').hidden,false);
+  assert.equal($('#profile-panel').lastElementChild.className,'ledger-section');assert.ok($('#profile-panel').firstElementChild.contains($('#activity-grid')));assert.ok($('#profile-panel').lastElementChild.contains($('#activity-ledger')));
+  $('#jump-ledger').click();assert.equal(w.document.activeElement.id,'ledger-title');
   assert.ok($('#activity-ledger').textContent.includes('Reopened'));assert.ok($('#activity-ledger').textContent.includes('Added to revisit'));
   change(w,'#activity-sheet','sql');assert.ok(!$('#activity-ledger').textContent.includes('Remove Element'));
   $(`[data-day="${day}"]`).click();assert.equal($('#clear-activity-day').hidden,false);assert.ok($('#activity-ledger').textContent.includes('Recyclable and Low Fat Products'));

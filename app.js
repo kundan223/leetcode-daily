@@ -90,17 +90,23 @@
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateDate();});
   setInterval(updateDate,60000);updateDate();renderList();
   function renderView(){
-    const profile=location.hash==='#profile';
-    const next=location.hash==='#sql'?'sql':profile?sheet:'dsa';
+    const route=location.hash.slice(1);
+    const view=['profile','contests','courses'].includes(route)?route:'sheet';
+    const next=route==='sql'?'sql':view!=='sheet'?sheet:'dsa';
     if(next!==sheet)selectSheet(next);
     render();
-    $('#sheet-panel').hidden=profile;$('#profile-panel').hidden=!profile;
-    $('#view-name').textContent=profile?'Profile':sheet==='sql'?'SQL 50':'DSA roadmap';
-    for(const name of ['sheet','sql','profile']){
+    for(const name of ['sheet','profile','contests','courses'])$(`#${name}-panel`).hidden=name!==view;
+    $('#view-name').textContent=view==='sheet'?(sheet==='sql'?'SQL 50':'DSA roadmap'):{profile:'Profile',contests:'Contests',courses:'System Design + Backend'}[view];
+    for(const name of ['sheet','sql','profile','contests','courses']){
       const link=$(`#${name}-tab`);
-      if(profile?name==='profile':name===(sheet==='sql'?'sql':'sheet'))link.setAttribute('aria-current','page');
+      if(name===(view==='sheet'?(sheet==='sql'?'sql':'sheet'):view))link.setAttribute('aria-current','page');
       else link.removeAttribute('aria-current');
     }
+    // Detach hidden players so video/audio cannot continue on another tab.
+    document.querySelectorAll('iframe[data-playlist-src]').forEach(player=>{
+      if(view==='courses'){if(!player.hasAttribute('src'))player.src=player.dataset.playlistSrc;}
+      else player.removeAttribute('src');
+    });
   }
   window.addEventListener('hashchange',renderView);
   $('#topics').addEventListener('click',e=>{if(e.target.closest('[data-topic]'))location.hash=sheet==='sql'?'sql':'sheet';});

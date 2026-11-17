@@ -27,6 +27,7 @@
   }
   async function load(){
     $('refresh-profile').disabled=true;
+    $('refresh-contests').disabled=true;
     try{
       const response=await fetch(`platform-data.json?t=${Date.now()}`,{cache:'no-store'});
       if(!response.ok)throw new Error('Snapshot unavailable');
@@ -45,9 +46,11 @@
     }catch{
       $('profile-message').textContent='Could not load the published snapshot. Your saved roadmap is unaffected. Try reloading later.';
       for(const id of ['leetcode-status','codeforces-status','leetcode-contests-status','codeforces-contests-status'])$(id).textContent='Data unavailable — check the official platform links.';
-    }finally{$('refresh-profile').disabled=false;}
+    }finally{$('refresh-profile').disabled=false;$('refresh-contests').disabled=false;}
   }
   $('refresh-profile').addEventListener('click',load);
+  const refreshContests=$('refresh-contests');
+  if(refreshContests)refreshContests.addEventListener('click',load);
   setInterval(renderContests,60000);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderContests();});
   load();

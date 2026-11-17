@@ -43,5 +43,9 @@
   $('activity-grid').addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(b){const clicked=b.dataset.day;day=day===clicked?null:clicked;limit=20;render();$('activity-grid').querySelector(`[data-day="${clicked}"]`).focus();}});
   $('clear-activity-day').addEventListener('click',()=>{day=null;render();});
   $('activity-more').addEventListener('click',()=>{limit+=20;render();});
+  $('jump-ledger').addEventListener('click',()=>{
+    $('ledger-title').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    $('ledger-title').focus({preventScroll:true});
+  });
   window.ActivityView={render};
 })();
