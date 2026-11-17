@@ -27,14 +27,14 @@ jobs:
         with:
           python-version: '3.12'
       - run: npm ci --no-audit --no-fund
-      - run: node test.cjs && node test-insights.cjs && node test-profile.cjs && node test-workspace.cjs && node test-ui.cjs && python -m unittest discover -s scripts -p 'test_*.py'
+      - run: node test.cjs && node test-insights.cjs && node test-profile.cjs && node test-workspace.cjs && node test-courses.cjs && node test-course-player.cjs && node test-ui.cjs && python -m unittest discover -s scripts -p 'test_*.py'
       - uses: actions/cache@v4
         with:
           path: platform-data.json
           key: platform-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: platform-snapshot-
       - run: python scripts/refresh_platforms.py
-      - run: mkdir -p _site && cp index.html styles.css app.js data.js sql-data.js progress.js insights.js workspace.js activity.js profile.js platform-data.json icon.svg .nojekyll _site/
+      - run: mkdir -p _site && cp index.html styles.css app.js data.js sql-data.js course-data.js course-progress.js courses.js progress.js insights.js workspace.js activity.js profile.js platform-data.json icon.svg .nojekyll _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -64,17 +64,18 @@
   $('#clear-filters').addEventListener('click',()=>{search='';difficulty='all';status='all';$('#search').value='';$('#difficulty').value='all';renderList();});
   $('#next').addEventListener('click',()=>{const candidate=filtered().find(r=>!state.problems[r.id]?.done);if(!candidate){toast('No unfinished problems in this view. Try All problems or another topic.');return;}window.open(candidate.url,'_blank','noopener,noreferrer');});
   $('#back-top').addEventListener('click',()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
-  $('#export').addEventListener('click',()=>{const content={app:'daily-practice',version:2,sheets:states,activity:journal,account:data.account,exportedAt:new Date().toISOString()};const url=URL.createObjectURL(new Blob([JSON.stringify(content,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`daily-practice-${P.day()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progress backup downloaded.');});
+  $('#export').addEventListener('click',()=>{const content={app:'daily-practice',version:3,sheets:states,activity:journal,courses:window.CourseView.snapshot(),account:data.account,exportedAt:new Date().toISOString()};const url=URL.createObjectURL(new Blob([JSON.stringify(content,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`daily-practice-${P.day()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progress backup downloaded.');});
   $('#import').addEventListener('change',async e=>{
     const file=e.target.files[0];if(!file)return;
     try{
       if(file.size>10000000)throw new Error('Please choose a backup smaller than 10 MB.');
       const incoming=W.validateBackup(JSON.parse(await file.text()),catalog);
-      if(!confirm(incoming.legacy?'Restore this original backup to DSA only? SQL progress and the activity ledger will be kept. Export your current progress first if needed.':'Replace both sheets and the activity ledger with this backup? Export your current progress first if needed.'))return;
+      if(!confirm(incoming.legacy?'Restore this original backup to DSA only? SQL progress and the activity ledger will be kept. Export your current progress first if needed.':(incoming.courses?'Replace both sheets, course checklists, watch time and activity with this backup? Export your current progress first if needed.':'Restore both sheets and their activity? Course checklists and watch time will be kept.')))return;
       states.dsa=incoming.dsa;writable.dsa=true;
       if(!incoming.legacy){states.sql=incoming.sql;journal=incoming.activity;writable.sql=true;writable.activity=true;}
       W.recover(journal,states);state=states[sheet];storageOK=true;
       try{localStorage.setItem(W.KEYS.dsa,JSON.stringify(states.dsa));if(!incoming.legacy)localStorage.setItem(W.KEYS.sql,JSON.stringify(states.sql));if(writable.activity)localStorage.setItem(W.KEYS.activity,JSON.stringify(journal));else storageOK=false;}catch{storageOK=false;}
+      if(incoming.courses)window.CourseView.restore(incoming.courses);
       render();toast(storageOK?'Backup restored.':'Backup restored for this session. Export before leaving.');
     }catch(error){toast(error instanceof SyntaxError?'That file is not valid JSON.':error.message);}finally{e.target.value='';}
   });
@@ -102,12 +103,9 @@
       if(name===(view==='sheet'?(sheet==='sql'?'sql':'sheet'):view))link.setAttribute('aria-current','page');
       else link.removeAttribute('aria-current');
     }
-    // Detach hidden players so video/audio cannot continue on another tab.
-    document.querySelectorAll('iframe[data-playlist-src]').forEach(player=>{
-      if(view==='courses'){if(!player.hasAttribute('src'))player.src=player.dataset.playlistSrc;}
-      else player.removeAttribute('src');
-    });
+    window.CourseView.setActive(view==='courses');
   }
+  document.addEventListener('coursechange',()=>window.ActivityView.render(journal));
   window.addEventListener('hashchange',renderView);
   $('#topics').addEventListener('click',e=>{if(e.target.closest('[data-topic]'))location.hash=sheet==='sql'?'sql':'sheet';});
   renderView();

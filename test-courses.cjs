@@ -1,0 +1,24 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const ctx={window:{crypto}};vm.createContext(ctx);
+for(const file of ['course-data.js','progress.js','workspace.js','course-progress.js'])vm.runInContext(fs.readFileSync(__dirname+'/'+file,'utf8'),ctx);
+const {CourseProgress:C,Workspace:W,COURSES}=ctx.window;
+assert.equal(COURSES[0].lessons.length,40);assert.equal(COURSES[1].lessons.length,31);
+for(const track of COURSES){assert.equal(new Set(track.lessons.map(l=>l.id)).size,track.lessons.length);for(const l of track.lessons){assert.match(l.id,/^[\w-]{11}$/);assert.ok(l.durationSeconds>0);}}
+const previous={id:'AK0hu0Zxua4',clock:1000,position:10,rate:1,state:1,active:true};
+const next={...previous,clock:2000,position:11};assert.equal(C.credit(previous,next),1);
+for(const change of [{state:2},{active:false},{id:'different'},{clock:9000},{position:10},{position:100},{position:2},{rate:2}])assert.equal(C.credit(previous,{...next,...change}),0);
+assert.equal(C.credit({...previous,rate:2},{...next,rate:2,position:12}),1);
+assert.equal(C.credit({...previous,rate:.5},{...next,rate:.5,position:10.5}),1);
+const state=C.fresh(),date='2026-11-17',at='2026-11-17T10:00:00.000Z',id='AK0hu0Zxua4';
+C.toggle(state,'design',id,true,new Date(at));C.toggle(state,'design',id,true,new Date(at));assert.equal(state.events.length,1);
+C.watch(state,{key:'session',course:'design',id,date,at,seconds:5});C.watch(state,{key:'session',course:'design',id,date,at,seconds:4});assert.equal(C.seconds(state,'design',id),9);
+C.watch(state,{key:'manual',course:'design',id,date,at,seconds:600,manual:true});assert.equal(C.seconds(state,'design'),609);
+C.toggle(state,'design',id,false,new Date(at));assert.equal(C.seconds(state,'design'),609);assert.equal(W.daily(state.events).get(date),1);
+assert.equal(JSON.stringify(C.validate(JSON.parse(JSON.stringify(state)))),JSON.stringify(state));
+assert.throws(()=>C.watch(state,{key:'session',course:'backend',id:'0Rwb4Xmlcwc',date,at,seconds:10}));
+assert.throws(()=>C.validate({...state,events:[{...state.events[1],seconds:-1}]}));
+assert.throws(()=>C.validate({...state,events:[{...state.events[1],date:'2026-02-30'}]}));
+assert.throws(()=>C.validate({...state,events:[{...state.events[1],id:'unknown'}]}));
+const catalog={dsa:new Set(),sql:new Set()},backup={version:3,app:'daily-practice',sheets:{dsa:ctx.window.Progress.fresh(),sql:ctx.window.Progress.fresh()},activity:{version:1,events:[]},courses:state};
+assert.equal(W.validateBackup(backup,catalog).courses.events.length,4);assert.equal(W.validateBackup({...backup,version:2},catalog).courses,undefined);
+console.log('PASS: verified lecture metadata; elapsed watch-time credits; pause, hidden, seek, speed, stall and sleep exclusions; completion idempotence; watch sessions; manual entries; v3 and legacy backups.');

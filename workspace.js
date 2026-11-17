@@ -30,7 +30,7 @@
   function daily(events,sheet='all'){
     const counts=new Map();
     for(const e of events){
-      if(!e.date||(sheet!=='all'&&e.sheet!==sheet)||!['completed','recovered'].includes(e.action))continue;
+      if(!e.date||(sheet!=='all'&&e.sheet!==sheet)||!['completed','recovered','watched','manual-watch'].includes(e.action))continue;
       if(!counts.has(e.date))counts.set(e.date,new Set());
       counts.get(e.date).add(`${e.sheet}:${e.id}`);
     }
@@ -48,8 +48,8 @@
   function validateBackup(value,catalog){
     // Original v1 exports always belong to DSA, regardless of the selected sheet.
     if(value?.version===1)return {legacy:true,dsa:root.Progress.validate(value,catalog.dsa)};
-    if(value?.version!==2||value.app!=='daily-practice'||!value.sheets)throw new Error('This is not a Daily Practice backup.');
-    return {legacy:false,dsa:root.Progress.validate(value.sheets.dsa,catalog.dsa),sql:root.Progress.validate(value.sheets.sql,catalog.sql),activity:validateActivity(value.activity,catalog)};
+    if(![2,3].includes(value?.version)||value.app!=='daily-practice'||!value.sheets)throw new Error('This is not a Daily Practice backup.');
+    return {legacy:false,dsa:root.Progress.validate(value.sheets.dsa,catalog.dsa),sql:root.Progress.validate(value.sheets.sql,catalog.sql),activity:validateActivity(value.activity,catalog),...(value.version===3?{courses:root.CourseProgress.validate(value.courses)}:{})};
   }
   root.Workspace={KEYS,validDate,validateActivity,recover,record,daily,calendar,validateBackup};
 })(typeof window!=='undefined'?window:globalThis);

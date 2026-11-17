@@ -2,7 +2,7 @@
   "name": "daily-practice",
   "private": true,
   "scripts": {
-    "test": "node test.cjs && node test-insights.cjs && node test-profile.cjs && node test-workspace.cjs && node test-ui.cjs"
+    "test": "node test.cjs && node test-insights.cjs && node test-profile.cjs && node test-workspace.cjs && node test-courses.cjs && node test-course-player.cjs && node test-ui.cjs"
   },
   "devDependencies": {
     "jsdom": "^31.0.1"
