@@ -97,7 +97,7 @@
     if(next!==sheet)selectSheet(next);
     render();
     for(const name of ['sheet','profile','contests','courses'])$(`#${name}-panel`).hidden=name!==view;
-    $('#view-name').textContent=view==='sheet'?(sheet==='sql'?'SQL 50':'DSA roadmap'):{profile:'Profile',contests:'Contests',courses:'System Design + Backend'}[view];
+    $('#view-name').textContent=view==='sheet'?(sheet==='sql'?'SQL 50':'DSA roadmap'):{profile:'Profile',contests:'Contests',courses:'Playlists'}[view];
     for(const name of ['sheet','sql','profile','contests','courses']){
       const link=$(`#${name}-tab`);
       if(name===(view==='sheet'?(sheet==='sql'?'sql':'sheet'):view))link.setAttribute('aria-current','page');

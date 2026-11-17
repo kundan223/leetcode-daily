@@ -9,6 +9,10 @@
   const pretty=date=>new Intl.DateTimeFormat(undefined,{dateStyle:'full'}).format(new Date(`${date}T12:00:00`));
   function render(value=journal,current=states){
     journal=value;states=current;
+    const courses=window.CourseView.catalog();
+    for(const course of courses){lookup[course.id]=new Map(course.lessons.map(l=>[l.id,{...l,url:`https://www.youtube.com/watch?v=${l.id}&list=${course.playlist}`} ]));names[course.id]=course.title;}
+    if(!['all','dsa','sql',...courses.map(c=>c.id)].includes(filter))filter='all';
+    $('activity-sheet').innerHTML=[['all','All practice'],['dsa','DSA'],['sql','SQL'],...courses.map(c=>[c.id,c.title])].map(([id,name])=>`<option value="${id}" ${id===filter?'selected':''}>${escape(name)}</option>`).join('');
     const combined=[...W.currentEntries(journal,states),...window.CourseView.events()];
     const today=P.day(),years=new Set([new Date().getFullYear(),year]);
     for(const e of combined)if(e.date)years.add(Number(e.date.slice(0,4)));
@@ -36,7 +40,7 @@
     $('ledger-unknown').hidden=!entries.some(e=>!e.date);$('ledger-unknown').setAttribute('aria-pressed',day==='unknown');
     $('activity-ledger').innerHTML=dated.length?`<ul class="ledger-entries">${dated.slice().sort((a,b)=>(b.at||'').localeCompare(a.at||'')).map(e=>{
       const row=lookup[e.sheet].get(e.id),time=e.at?new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit'}).format(new Date(e.at)):'Time not recorded';
-      return `<li><span class="ledger-time">${escape(time)}</span><span class="ledger-sheet">${names[e.sheet]}</span><div><a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer">${row.position||row.id}. ${escape(row.title)} ↗</a><span class="ledger-action">${e.action==='review'?'Currently marked to revisit':'Completed'}${e.seconds?` · ${window.CourseProgress.format(e.seconds)} lecture duration credited`:''}</span></div></li>`;
+      return `<li><span class="ledger-time">${escape(time)}</span><span class="ledger-sheet">${escape(names[e.sheet])}</span><div><a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer">${row.position||row.id}. ${escape(row.title)} ↗</a><span class="ledger-action">${e.action==='review'?'Currently marked to revisit':'Completed'}${e.seconds?` · ${window.CourseProgress.format(e.seconds)} lecture duration credited`:''}</span></div></li>`;
     }).join('')}</ul>`:'<div class="activity-empty">No checked items for this day and filter. Use the day buttons to browse, or complete an item on a sheet or course.</div>';
   }
   function chooseDay(date){day=date;if(date!=='unknown')year=Number(date.slice(0,4));render();$('activity-ledger').scrollTop=0;}

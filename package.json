@@ -2,9 +2,10 @@
   "name": "daily-practice",
   "private": true,
   "scripts": {
-    "test": "node test.cjs && node test-insights.cjs && node test-profile.cjs && node test-workspace.cjs && node test-courses.cjs && node test-course-player.cjs && node test-ui.cjs && node test-ledger.cjs"
+    "test": "node test.cjs && node test-insights.cjs && node test-profile.cjs && node test-workspace.cjs && node test-courses.cjs && node test-course-player.cjs && node test-ui.cjs && node test-ledger.cjs && node test-playlists.cjs"
   },
   "devDependencies": {
+    "daisyui": "5.8.1",
     "jsdom": "^31.0.1"
   }
 }
