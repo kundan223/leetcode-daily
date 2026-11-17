@@ -1,6 +1,6 @@
 # Daily Practice
 
-A personal coding interview tracker for **kundan_hero12**. 242 unique LeetCode problems across 22 topics, excluding the 258 solved IDs checked on 13 November 2026.
+A personal coding interview tracker for **kundan_hero12** with two independent sheets: 242 DSA problems across 22 topics (excluding the 258 solved IDs checked on 13 November 2026), and all 50 questions across 7 official topics from [LeetCode SQL 50](https://leetcode.com/studyplan/top-sql-50/), retrieved on 17 November 2026.
 
 ## Features
 - Completion checkboxes with automatic local browser storage
@@ -9,13 +9,20 @@ A personal coding interview tracker for **kundan_hero12**. 242 unique LeetCode p
 - Revisit stars, next-problem shortcut, direct LeetCode links
 - JSON backup export/import and progress updates between tabs
 - Responsive layout, keyboard controls and reduced-motion support
+- DSA / SQL navigation that switches sidebar topics, question lists, goals, counts and filters
+- A separate Profile tab with a yearly activity calendar and day-by-day ledger
 
-Progress is saved on this browser/device, not on GitHub or LeetCode. Export a backup before clearing browser data, switching devices, or using another browser. Import replaces the current local progress after confirmation. There is no automatic cross-device sync. Public platform statistics are displayed separately and never change your roadmap checkmarks. The original `daily-practice-kundan-v1` storage key, problem IDs and version-1 backup format are unchanged.
+Progress is saved on this browser/device, not on GitHub or LeetCode. Export a backup before clearing browser data, switching devices, or using another browser. Import replaces the selected backup's scope after confirmation. There is no automatic cross-device sync. Public platform statistics are displayed separately and never change your roadmap checkmarks. The original `daily-practice-kundan-v1` storage key, problem IDs and internal version-1 DSA format are unchanged. SQL uses `daily-practice-kundan-sql-v1`; the ledger uses `daily-practice-kundan-activity-v1`. Export now creates a version-2 backup containing both sheets and activity. Original version-1 backups restore DSA only, even when SQL is selected, leaving SQL progress and existing history intact. Invalid stored data is retained rather than overwritten automatically.
+
+## Activity calendar and ledger
+Profile starts with a calendar of tracker completions and a ledger directly below. Select a year, filter by sheet, or select a calendar day to inspect its entries. Each distinct problem counts once per local calendar day per sheet. Reopened problems retain their historical activity; repeated completion on one day does not inflate the calendar. Review/unreview events appear in the ledger but do not count as completed problems.
+
+Saved completion dates are recovered once per problem/date without changing existing progress. Entries without a date are listed under Date unknown. Prior activity that was never recorded cannot be reconstructed. New completions, reopening and revisit changes include a timestamp; recovered entries do not invent one. This is browser-local tracker history, not full LeetCode/Codeforces submission history. The ledger shows 20 date groups initially and offers Show more days without discarding stored history.
 
 ## Profile, score and contests
 LeetCode: **kundan_hero12**. Codeforces: **nonChalak** (user-confirmed). Public handles live in `profile-config.json`. No API secrets are needed. The Python updater reads LeetCode GraphQL and the official Codeforces API, publishing timestamped snapshots. LeetCode's undocumented schema may change. Each data source fails independently and retains its last successful snapshot; failed refreshes and snapshots older than 24 hours are labeled stale. Missing data is never displayed as zero. Contests are sorted by start time, exclude already-started events, and show the browser's time zone and official links.
 
-The practice score is `round(60 × completed/242 + 25 × topics-with-a-completion/22 + 15 × active-days/14)`. An active day has at least one still-completed roadmap problem dated in the last 14 local calendar days, including today. Undoing completion removes its contribution. It measures self-reported practice, not interview readiness or hiring probability. **No job guarantee.** The UI explains the components and limitations.
+The practice score continues to measure **DSA only**: `round(60 × completed/242 + 25 × topics-with-a-completion/22 + 15 × active-days/14)`. An active day has at least one still-completed DSA problem dated in the last 14 local calendar days, including today. Undoing completion removes its score contribution; the activity ledger retains the action history. SQL progress is displayed separately. The score measures self-reported practice, not interview readiness or hiring probability. **No job guarantee.** The UI explains the components and limitations.
 
 `python scripts/refresh_platforms.py` refreshes snapshots. The GitHub Actions workflow refreshes and deploys on main pushes, manual runs, and every six hours (schedules may be delayed or disabled by GitHub). An Actions cache retains last-good snapshots between scheduled deployments. Reload stats fetches the latest published snapshot, not the platform directly.
 
@@ -23,7 +30,7 @@ The practice score is `round(60 × completed/242 + 25 × topics-with-a-completio
 Serve this folder with any static HTTP server, e.g. `python -m http.server 8080`. No build or installation is required. Set GitHub Pages source to **GitHub Actions** for `.github/workflows/pages.yml`. The existing Pages URL and origin must remain unchanged to preserve browser progress. Only static application assets are uploaded.
 
 ## Validation
-Run `node test.cjs`, `node test-insights.cjs`, `node test-profile.cjs`, and `python -m unittest discover -s scripts -p 'test_*.py'`. Tests cover legacy backups, completion/revisit behavior, score bounds and date boundaries, contest expiry, profile failure states, escaping, unrated users and last-good snapshot retention. The original source data is in `data.js`. Progress logic is isolated in `progress.js`. The styling uses Google Fonts with local system-font fallbacks.
+Run `npm ci`, `npm test`, and `python -m unittest discover -s scripts -p 'test_*.py'`. Node 24.15+ or 22.22.2+ supports the locked jsdom test dependency; runtime application assets need no packages or build. Tests cover legacy backups, isolated SQL state, switching sidebar and filters, activity recovery, completion/reopen/revisit history, day deduplication, leap years, v1/v2 backup restore, corrupted-storage protection, score bounds, contest expiry and platform failures. DOM integration tests execute the actual scripts against the page markup. The original DSA data is in `data.js`; SQL data is in `sql-data.js`. Progress logic is isolated in `progress.js`; multi-sheet and activity logic lives in `workspace.js`. The styling uses Google Fonts with local system-font fallbacks.
 
 ## Learning scope
-This sheet covers major coding-interview data structures and algorithms. It is not exhaustive and does not replace system design, SQL, core CS or behavioral preparation. The snapshot excludes accepted solutions, not attempted questions. Problem difficulty may change on LeetCode.
+These sheets cover major coding-interview data structures, algorithms and SQL. They are not exhaustive and do not replace system design, core CS or behavioral preparation. The DSA snapshot excludes accepted solutions, not attempted questions. SQL 50 includes all plan questions regardless of previously solved status. Problem difficulty may change on LeetCode.

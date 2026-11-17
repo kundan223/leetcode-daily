@@ -1,0 +1,23 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const ctx={window:{crypto}};vm.createContext(ctx);
+for(const file of ['data.js','sql-data.js','progress.js','workspace.js'])vm.runInContext(fs.readFileSync(__dirname+'/'+file,'utf8'),ctx);
+const {ROADMAP:DSA,SQL_ROADMAP:SQL,Progress:P,Workspace:W}=ctx.window;
+const catalog={dsa:new Set(DSA.sections.flatMap(s=>s.rows).map(r=>r.id)),sql:new Set(SQL.sections.flatMap(s=>s.rows).map(r=>r.id))};
+assert.equal(SQL.sections.length,7);assert.equal(catalog.sql.size,50);assert.equal(SQL.sections.flatMap(s=>s.rows).length,50);
+for(const row of SQL.sections.flatMap(s=>s.rows)){assert.match(row.url,/^https:\/\/leetcode.com\/problems\/[a-z0-9-]+\/$/);assert.ok(['E','M','H'].includes(row.difficulty));}
+assert.equal(W.KEYS.dsa,'daily-practice-kundan-v1');assert.notEqual(W.KEYS.dsa,W.KEYS.sql);
+const states={dsa:P.fresh(),sql:P.fresh()};P.toggleDone(states.dsa,27,true,'2026-11-13');P.toggleReview(states.dsa,27);P.toggleDone(states.sql,1757,true,'2026-11-14');
+const before=JSON.stringify(states),journal={version:1,events:[]};W.recover(journal,states);W.recover(journal,states);
+assert.equal(journal.events.length,2);assert.equal(JSON.stringify(states),before);
+W.record(journal,'sql',1757,'reopened',new Date(2026,10,14,14));W.record(journal,'sql',1757,'completed',new Date(2026,10,14,15));W.record(journal,'sql',584,'review',new Date(2026,10,14,16));
+assert.equal(W.daily(journal.events).get('2026-11-14'),1);assert.equal(W.daily(journal.events,'dsa').size,1);
+const bundle={app:'daily-practice',version:2,sheets:states,activity:journal};const restored=W.validateBackup(JSON.parse(JSON.stringify(bundle)),catalog);
+assert.equal(JSON.stringify(restored.sql),JSON.stringify(states.sql));assert.equal(JSON.stringify(restored.dsa),JSON.stringify(states.dsa));assert.equal(restored.activity.events.length,5);
+const legacy=W.validateBackup(states.dsa,catalog);assert.equal(legacy.legacy,true);assert.equal(legacy.sql,undefined);assert.equal(legacy.dsa.problems[27].review,true);
+assert.throws(()=>W.validateBackup({...bundle,activity:{version:1,events:[{key:'bad',sheet:'sql',id:1757,action:'completed',date:'2026-02-30',at:null}]}},catalog));
+assert.equal(W.validDate('2026-02-30'),false);assert.equal(W.validDate('2024-02-29'),true);
+assert.equal(W.calendar(2024,new Date(2026,10,17)).filter(c=>c.inYear).length,366);
+const current=W.calendar(2026,new Date(2026,10,17));assert.equal(current.filter(c=>c.inYear).length,365);assert.equal(current.find(c=>c.date==='2026-11-18').future,true);
+assert.equal(current.filter(c=>c.inYear&&c.month!==null).length,12);
+states.dsa.problems[27].completedOn=null;W.recover(journal,states);assert.ok(journal.events.some(e=>e.sheet==='dsa'&&e.date===null));
+console.log('PASS: official SQL 50 structure, isolated sheet keys, legacy migration, idempotent history recovery, journal roundtrip, day deduplication, invalid dates, leap years and future dates.');
