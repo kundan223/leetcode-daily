@@ -1,0 +1,10 @@
+# Activate the prepared cloud sync
+
+1. Connect the owner's Supabase account. Reuse a suitable existing Free project, or create a project in a Free organization, preferably in an available India region. Do not select Pro or upgrade. Keep the project owned by the user.
+2. Apply `migrations/202611170001_cloud_sync.sql`. It creates `practice_state`, its read policy, and the authenticated `save_practice_state` function. No application data is included in the repository.
+3. Enable email/password authentication. Set Site URL and the allowed auth redirect URL to `https://kundan223.github.io/leetcode-daily/`. Keep email confirmation enabled. The built-in mail service may restrict recipients to organization members; for this personal tracker, the owner's email should be a project organization member. Verify current mail restrictions before relying on signup or password recovery. Do not add paid SMTP without authorization.
+4. Set `url` and `publishableKey` in `supabase-config.js` from the project's public connection details. The client deliberately rejects secret keys and legacy service-role JWTs. Never expose management credentials, passwords, or service-role keys in GitHub or frontend code.
+5. Run `npm test` and Python updater tests. Test sign-in, first-device upload, a separate-device download, unchecking and resync, anonymous denial, and ownership isolation against the hosted project. Do not manufacture the user's password or silently upload browser progress through an administrative credential.
+6. Merge the tested source into main and use the existing GitHub Pages workflow. Verify the deployment and exact live assets. On the original browser, sign in to Account and choose Enable sync; then sign in to the same account on other devices. Existing full backups remain importable.
+
+Schema tests use a local in-memory PostgreSQL engine and a minimal Auth claims stub. They do not establish that hosted project configuration or live login has been tested. Configure only a Free project; free projects may pause after inactivity. No periodic artificial keep-alive is installed.

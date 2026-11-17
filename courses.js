@@ -65,6 +65,6 @@
   drop.addEventListener('dragleave',()=>drop.classList.remove('dragging'));
   drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('dragging');const text=e.dataTransfer.getData('text/uri-list').split('\n').find(s=>s&&!s.startsWith('#'))||e.dataTransfer.getData('text/plain');$('playlist-url').value=text.trim();$('playlist-url').focus();});
   window.addEventListener('storage',e=>{if(e.key===C.KEY)try{state=e.newValue?C.validate(JSON.parse(e.newValue)):C.fresh();writable=true;render();notify();}catch{$('course-save-state').textContent='Invalid course data from another tab was ignored.';}});
-  window.CourseView={setActive,catalog:tracks,snapshot:()=>C.validate(JSON.parse(JSON.stringify(state))),events:()=>C.entries(state),restore(value){state=C.validate(value);writable=true;render();save();}};
+  window.CourseView={healthy:()=>writable,setActive,catalog:tracks,snapshot:()=>C.validate(JSON.parse(JSON.stringify(state))),events:()=>C.entries(state),restore(value){state=C.validate(value);writable=true;render();save();}};
   render();$('course-save-state').textContent=writable?'Lecture completions saved in this browser.':'Saved course data could not be loaded. Existing data has been kept.';
 })();

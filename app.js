@@ -25,6 +25,7 @@
     catch{storageOK=false;}
     if(!storageOK)toast('Some changes are only in this session. Export a backup before leaving.');
     $('#save-state').textContent=storageOK?'Automatically saved':'Not saved - export a backup';
+    document.dispatchEvent(new CustomEvent('practicechange'));
   }
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function filtered(){return rows.filter(r=>(topic<0||r.topic===topic)&&(difficulty==='all'||r.difficulty===difficulty)&&(status==='all'||status==='done'&&state.problems[r.id]?.done||status==='todo'&&!state.problems[r.id]?.done||status==='review'&&state.problems[r.id]?.review)&&`${r.id} ${r.title} ${r.focus} ${r.topicTitle}`.toLowerCase().includes(search));}
@@ -76,7 +77,7 @@
       W.recover(journal,states);state=states[sheet];storageOK=true;
       try{localStorage.setItem(W.KEYS.dsa,JSON.stringify(states.dsa));if(!incoming.legacy)localStorage.setItem(W.KEYS.sql,JSON.stringify(states.sql));if(writable.activity)localStorage.setItem(W.KEYS.activity,JSON.stringify(journal));else storageOK=false;}catch{storageOK=false;}
       if(incoming.courses)window.CourseView.restore(incoming.courses);
-      render();toast(storageOK?'Backup restored.':'Backup restored for this session. Export before leaving.');
+      render();document.dispatchEvent(new CustomEvent('practicechange'));toast(storageOK?'Backup restored.':'Backup restored for this session. Export before leaving.');
     }catch(error){toast(error instanceof SyntaxError?'That file is not valid JSON.':error.message);}finally{e.target.value='';}
   });
   window.addEventListener('storage',e=>{
@@ -108,5 +109,23 @@
   document.addEventListener('coursechange',()=>window.ActivityView.render(journal,states));
   window.addEventListener('hashchange',renderView);
   $('#topics').addEventListener('click',e=>{if(e.target.closest('[data-topic]'))location.hash=sheet==='sql'?'sql':'sheet';});
+  function validateCloud(value){
+    if(value?.version!==3)throw new Error('Cloud progress has an unsupported format.');
+    const checked=W.validateBackup(value,catalog);
+    return {app:'daily-practice',version:3,sheets:{dsa:checked.dsa,sql:checked.sql},activity:checked.activity,courses:checked.courses};
+  }
+  window.TrackerState={
+    snapshot:()=>validateCloud({app:'daily-practice',version:3,sheets:states,activity:journal,courses:window.CourseView.snapshot()}),
+    validate:validateCloud,
+    healthy:()=>Object.values(writable).every(Boolean)&&window.CourseView.healthy(),
+    apply(value){
+      const checked=validateCloud(value);
+      const next={[W.KEYS.dsa]:checked.sheets.dsa,[W.KEYS.sql]:checked.sheets.sql,[W.KEYS.activity]:checked.activity,[window.CourseProgress.KEY]:checked.courses};
+      const previous=Object.fromEntries(Object.keys(next).map(key=>[key,localStorage.getItem(key)]));
+      try{for(const [key,data] of Object.entries(next))localStorage.setItem(key,JSON.stringify(data));}
+      catch(error){for(const [key,data] of Object.entries(previous))try{if(data===null)localStorage.removeItem(key);else localStorage.setItem(key,data);}catch{}throw new Error('Browser storage is full. Export a backup and free space before loading cloud progress.');}
+      for(const [key,data] of Object.entries(next))window.dispatchEvent(new StorageEvent('storage',{key,newValue:JSON.stringify(data),oldValue:previous[key]}));
+    }
+  };
   renderView();
 })();
