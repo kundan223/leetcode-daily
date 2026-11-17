@@ -1,0 +1,83 @@
+{
+  "handles": {
+    "leetcode": "kundan_hero12",
+    "codeforces": "nonChalak"
+  },
+  "leetcode": {
+    "data": {
+      "solved": 261,
+      "easy": 92,
+      "medium": 141,
+      "hard": 28,
+      "ranking": 639462,
+      "rating": null,
+      "contests": 0
+    },
+    "updatedAt": "2026-11-17T10:17:28.786962+00:00",
+    "error": null
+  },
+  "leetcodeContests": {
+    "data": [
+      {
+        "title": "Weekly Contest 529",
+        "slug": "weekly-contest-529",
+        "startTime": 1795314600,
+        "duration": 5400
+      },
+      {
+        "title": "Biweekly Contest 196",
+        "slug": "biweekly-contest-196",
+        "startTime": 1795271400,
+        "duration": 5400
+      }
+    ],
+    "updatedAt": "2026-11-17T10:17:28.786962+00:00",
+    "error": null
+  },
+  "codeforcesContests": {
+    "data": [
+      {
+        "id": 2282,
+        "title": "Kotlin Heroes: Episode 15",
+        "startTime": 1796740500,
+        "duration": 9000
+      },
+      {
+        "id": 2286,
+        "title": "Kotlin Heroes: Practice 15",
+        "startTime": 1796135400,
+        "duration": 604800
+      },
+      {
+        "id": 2289,
+        "title": "Codeforces Round (Div. 2)",
+        "startTime": 1795338300,
+        "duration": 7200
+      },
+      {
+        "id": 2287,
+        "title": "Codeforces Round (Div. 1)",
+        "startTime": 1795271700,
+        "duration": 7200
+      },
+      {
+        "id": 2288,
+        "title": "Codeforces Round (Div. 2)",
+        "startTime": 1795271700,
+        "duration": 7200
+      }
+    ],
+    "updatedAt": "2026-11-17T10:17:28.786962+00:00",
+    "error": null
+  },
+  "codeforces": {
+    "data": {
+      "rating": 953,
+      "maxRating": 990,
+      "rank": "newbie",
+      "contests": 9
+    },
+    "updatedAt": "2026-11-17T10:17:28.786962+00:00",
+    "error": null
+  }
+}

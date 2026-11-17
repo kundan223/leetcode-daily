@@ -4,8 +4,8 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#101713"><meta name="description" content="A personal 242-question coding interview roadmap, with daily goals and saved progress.">
   <title>Daily Practice · Kundan's Interview Roadmap</title>
-  <link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=dark-1">
-  <script src="data.js" defer></script><script src="progress.js" defer></script><script src="app.js" defer></script>
+  <link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=profile-2">
+  <script src="data.js" defer></script><script src="progress.js" defer></script><script src="insights.js" defer></script><script src="app.js" defer></script><script src="profile.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to problems</a>
@@ -24,6 +24,19 @@
     <div class="stat-card"><div class="stat-top">Today's focus <span>☀</span></div><div class="stat-value"><strong id="today-done">0</strong><span id="goal-label">/ 3 problems</span></div><div class="goal-track" id="goal-track" aria-hidden="true"></div><div class="stat-foot"><label for="goal">Daily goal</label><select id="goal" aria-label="Daily problem goal"><option value="1">1 problem</option><option value="2">2 problems</option><option value="3" selected>3 problems</option><option value="5">5 problems</option><option value="10">10 problems</option></select></div></div>
     <div class="stat-card"><div class="stat-top">Topics completed <span>◇</span></div><div class="stat-value"><strong id="topics-done">0</strong><span>/ 22 topics</span></div><p class="stat-description" id="topic-message">Build a foundation, then move forward.</p><div class="stat-foot"><span class="green-dot"></span><span id="save-state">Automatically saved</span></div></div>
   </section>
+  <section class="profile-section" aria-labelledby="profile-title">
+    <div class="section-heading"><div><div class="eyebrow">YOUR CODING PROFILE</div><h2 id="profile-title">Practice, in perspective.</h2></div><button class="button" id="refresh-profile">Reload stats</button></div>
+    <p class="profile-note" id="profile-message" role="status">Loading public platform snapshots…</p>
+    <div class="profile-grid">
+      <article class="profile-card"><div class="platform-label">LEETCODE</div><h3><a href="https://leetcode.com/u/kundan_hero12/" target="_blank" rel="noopener noreferrer">kundan_hero12 ↗</a></h3><div id="leetcode-metrics"></div><p class="profile-note" id="leetcode-status">Loading…</p></article>
+      <article class="profile-card"><div class="platform-label">CODEFORCES</div><h3 id="codeforces-handle">Handle not provided</h3><a id="codeforces-link" hidden target="_blank" rel="noopener noreferrer">View profile ↗</a><div id="codeforces-metrics"></div><p class="profile-note" id="codeforces-status">Your handle is needed to connect this profile.</p></article>
+      <article class="profile-card score-card"><div class="platform-label">CODING INTERVIEW PRACTICE</div><h3><strong id="practice-score">0</strong><span> / 100</span></h3><progress id="practice-score-bar" max="100" value="0" aria-label="Coding interview practice score"></progress><p class="profile-note">A measure of logged practice. <strong>No job guarantee.</strong> This is not a hiring prediction or an assessment of interview readiness.</p><details><summary>How this score is calculated</summary><ul id="score-breakdown"></ul><p class="profile-note">60 × solved / 242 + 25 × topics with a solve / 22 + 15 × active days / 14, rounded once. Active days use completion dates in the last 14 local calendar days, including today. Unchecking a solve removes its contribution. Self-reported roadmap progress only; platform ratings do not affect the score. It does not assess explanation quality, timed performance, system design, or behavioral skills.</p></details></article>
+    </div>
+  </section>
+  <section class="contest-section" aria-labelledby="contest-title"><div class="eyebrow">MAKE TIME TO COMPETE</div><h2 id="contest-title">Upcoming contests</h2><p id="contest-zone" class="profile-note">Times use your browser's local time zone.</p><div class="contest-grid">
+    <article class="profile-card"><h3>LeetCode</h3><p class="profile-note" id="leetcode-contests-status">Loading…</p><ul class="contest-list" id="leetcode-contests"></ul><a class="schedule-link" href="https://leetcode.com/contest/" target="_blank" rel="noopener noreferrer">Official LeetCode schedule ↗</a></article>
+    <article class="profile-card"><h3>Codeforces</h3><p class="profile-note" id="codeforces-contests-status">Loading…</p><ul class="contest-list" id="codeforces-contests"></ul><a class="schedule-link" href="https://codeforces.com/contests" target="_blank" rel="noopener noreferrer">Official Codeforces schedule ↗</a></article>
+  </div></section>
   <section class="roadmap" aria-labelledby="section-title"><div class="section-heading"><div><div class="eyebrow">THE PRACTICE SHEET</div><h2 id="section-title">All problems <span id="heading-count">242</span></h2></div><button class="button" id="next">Pick my next problem <span>↗</span></button></div>
   <p class="topic-description" id="topic-description">A clear path through 22 essential topics. Start at the beginning or choose your focus.</p>
   <div class="toolbar"><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search a problem, concept, or number…" aria-label="Search problems"></label><select id="difficulty" aria-label="Filter difficulty"><option value="all">All difficulties</option><option value="E">Easy</option><option value="M">Medium</option><option value="H">Hard</option></select></div>
@@ -31,7 +44,7 @@
   <div class="table-wrap"><table><thead><tr><th class="check-col"><span class="sr-only">Completed</span></th><th>PROBLEM / CONCEPT</th><th class="difficulty-col">DIFFICULTY</th><th class="topic-col">TOPIC</th><th class="review-col">REVISIT</th><th class="link-col"><span class="sr-only">Open problem</span></th></tr></thead><tbody id="problems"></tbody></table><div id="empty" hidden><span>⌕</span><h3>No problems here yet</h3><p>Try another search or filter.</p><button class="button" id="clear-filters">Clear filters</button></div></div>
   <div class="list-footer"><span id="list-footer">Every solved problem is a step forward.</span><button class="text-button" id="back-top">Back to top ↑</button></div>
   </section>
-  <footer class="footer"><div><strong>Made for your next opportunity.</strong><p>242 problems · 22 topics · Curated for kundan_hero12</p></div><p>Excluded all 258 previously solved problems.<br>Checked 13 Nov 2026. This tracker does not sync with LeetCode.</p></footer>
+  <footer class="footer"><div><strong>Made for your next opportunity.</strong><p>242 problems · 22 topics · Curated for kundan_hero12</p></div><p>Roadmap excluded 258 solved problems on 13 Nov 2026.<br>Platform stats are separate; checkmarks do not sync with LeetCode.</p></footer>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
 </body></html>

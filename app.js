@@ -9,6 +9,9 @@
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function filtered(){return rows.filter(r=>(topic<0||r.topic===topic)&&(difficulty==='all'||r.difficulty===difficulty)&&(status==='all'||status==='done'&&state.problems[r.id]?.done||status==='todo'&&!state.problems[r.id]?.done||status==='review'&&state.problems[r.id]?.review)&&`${r.id} ${r.title} ${r.focus} ${r.topicTitle}`.toLowerCase().includes(search));}
   function renderStats(){
+    const practice=window.Insights.score(state,data.sections);
+    $('#practice-score').textContent=practice.total;$('#practice-score-bar').value=practice.total;
+    $('#score-breakdown').innerHTML=`<li>Completion: ${practice.completion.toFixed(1)} / 60 (${practice.done} / ${rows.length} solved)</li><li>Topic coverage: ${practice.breadth.toFixed(1)} / 25 (${practice.covered} / ${data.sections.length} topics)</li><li>Consistency: ${practice.consistency.toFixed(1)} / 15 (${practice.active} / 14 active days)</li>`;
     const s=P.stats(state,data.sections);$('#done').textContent=s.done;$('#overall-bar').value=s.done;$('#percent').textContent=`${s.percent}% complete`;$('#remaining').textContent=`${s.total-s.done} to explore`;$('#today-done').textContent=s.today;$('#goal-label').textContent=`/ ${state.goal} problems`;$('#goal').value=state.goal;$('#topics-done').textContent=s.topics;
     $('#goal-track').innerHTML=Array.from({length:state.goal},(_,i)=>`<span class="${i<s.today?'filled':''}"></span>`).join('');
     $('#topic-message').textContent=s.topics===22?'Every topic complete. Time to revisit and refine.':s.today>=state.goal?'Daily goal reached. Keep that momentum.':'Build a foundation, then move forward.';

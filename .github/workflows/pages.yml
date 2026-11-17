@@ -1,0 +1,42 @@
+name: Refresh profiles and publish Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '23 */6 * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: node test.cjs && node test-insights.cjs && node test-profile.cjs && python -m unittest discover -s scripts -p 'test_*.py'
+      - uses: actions/cache@v4
+        with:
+          path: platform-data.json
+          key: platform-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: platform-snapshot-
+      - run: python scripts/refresh_platforms.py
+      - run: mkdir -p _site && cp index.html styles.css app.js data.js progress.js insights.js profile.js platform-data.json icon.svg .nojekyll _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deployment
