@@ -43,4 +43,17 @@
   function updateDate(){const date=new Date();$('#date').textContent=new Intl.DateTimeFormat('en',{weekday:'short',month:'short',day:'numeric',year:'numeric'}).format(date);renderStats();}
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateDate();});
   setInterval(updateDate,60000);updateDate();renderList();
+  function renderView(){
+    const profile=location.hash==='#profile';
+    $('#sheet-panel').hidden=profile;$('#profile-panel').hidden=!profile;
+    $('#view-name').textContent=profile?'Profile':'Interview roadmap';
+    for(const name of ['sheet','profile']){
+      const link=$(`#${name}-tab`);
+      if((name==='profile')===profile)link.setAttribute('aria-current','page');
+      else link.removeAttribute('aria-current');
+    }
+  }
+  window.addEventListener('hashchange',renderView);
+  $('#topics').addEventListener('click',e=>{if(e.target.closest('[data-topic]'))location.hash='sheet';});
+  renderView();
 })();
